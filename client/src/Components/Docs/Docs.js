@@ -28,8 +28,9 @@ export default function Docs() {
 			if (data && data.error) {
 				window.location.href = '/'
 				console.log(data.error)
-			} else if (data && data.content) {
+			} if (data && data.content) {
 				setDocs(data.content)
+			} if (data && data.accessList){
 				setEmailList(data.accessList)
 			} else {
 				console.log("No data")
