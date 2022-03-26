@@ -9,15 +9,13 @@ import { v4 as uuidv4 } from 'uuid'
 const root = document.getElementById('root')
 
 ReactDOM.createRoot(root).render(
-	<React.StrictMode>
-		<BrowserRouter>
-			<Routes>
-				<Route exact path="/" element={<App />} />
-				<Route path="/docs/" element={<Navigate to={"/docs/" + uuidv4()} />} />
-				<Route path="/docs/new" element={<Navigate to={"/docs/" + uuidv4()} />} />
-				<Route path="/docs/:pageId" element={<Docs />} />
-				<Route path="/login" element={<Login />} />
-			</Routes>
-		</BrowserRouter>
-	</React.StrictMode>
+	<BrowserRouter>
+		<Routes>
+			<Route exact path="/" element={<App />} />
+			<Route path="/docs/" element={<Navigate to={"/docs/" + uuidv4()} />} />
+			<Route path="/docs/new" element={<Navigate to={"/docs/" + uuidv4()} />} />
+			<Route path="/docs/:pageId" element={<Docs />} />
+			<Route path="/login" element={<Login />} />
+		</Routes>
+	</BrowserRouter>
 )

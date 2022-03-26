@@ -7,17 +7,40 @@ const SERVER = "http://127.0.0.1:5000"
 let socket
 
 export default function Docs() {
-	const { pageId } = useParams()
 	const [docs, setDocs] = useState("")
+	const [emailList, setEmailList] = useState([])
+	const { pageId } = useParams()
+	const user = JSON.parse(localStorage.getItem('user'))
+	if (!!!user) {
+		window.location.href = '/login'
+	}
 
 	useEffect(() => {
+		fetch('http://localhost:7000/dbGet', {
+			method: 'POST',
+			mode: 'cors',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ pageId: pageId, email: user.profileObj.email })
+		}).then(async (res) => {
+			const data = await res.json()
+			if (data && data.error) {
+				window.location.href = '/'
+				console.log(data.error)
+			} else if (data && data.content) {
+				setDocs(data.content)
+				setEmailList(data.accessList)
+			} else {
+				console.log("No data")
+			}
+		}).catch(err => {
+			console.log(err)
+		})
+
 		socket = io(SERVER, { query: { id: pageId } })
 		socket.on('connect', () => {
-			console.log("connected")
 			socket.emit('join')
-			socket.on('memberCount', ({ count }) => {
-				console.log(count)
-			})
 			socket.on('receive', ({ message }) => {
 				console.log(message)
 				setDocs(message)
@@ -31,17 +54,53 @@ export default function Docs() {
 		})
 	}, [docs])
 
+	const handleSave = () => {
+		fetch('http://localhost:7000/dbGet', {
+			method: 'POST',
+			mode: 'cors',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ pageId: pageId, email: user.profileObj.email, content: docs, addEmail: emailList })
+		}).then(async (res) => {
+			const data = await res.json()
+			if (data && data.error) {
+				console.log(data.error)
+				window.location.href = '/'
+			} else if (data && data.content) {
+				setDocs(data.content)
+			} else {
+				console.log("No data")
+			}
+		}).catch(err => {
+			console.log(err)
+		})
+	}
+
+	const handleChange = (e) => {
+		setDocs(e.target.value)
+		socket.emit('send', { message: e.target.value })
+	}
+
+	const handleEmailChange = (e) => {
+		let emails = e.target.value.split(',')
+		emails = emails.map((email) => email.trim())
+		setEmailList(emails)
+	}
+
 	return (
 		<div className="App">
-			<input
+			<textarea
 				value={docs}
-				onChange={
-					(e) => {
-						setDocs(e.target.value)
-						socket.emit('send', { message: e.target.value })
-					}
-				}>
-			</input>
+				onChange={(e) => handleChange(e)} /> <br></br>
+			<button onClick={handleSave}>
+				Save
+			</button><br></br>
+
+			<input value={emailList} onChange={(e) => handleEmailChange(e)} /><br></br>
+			<button onClick={handleSave}>
+				Save Email List
+			</button>
 		</div>
 	)
 }

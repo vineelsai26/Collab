@@ -7,8 +7,12 @@ const docsSchema = new mongoose.Schema({
         unique: true
     },
     content: {
+        type: String
+    },
+    contentType: {
         type: String,
-        required: true
+        required: true,
+        default: 'public'
     },
     accessList: {
         type: JSON,
@@ -16,4 +20,4 @@ const docsSchema = new mongoose.Schema({
     },
 })
 
-module.exports = mongoose.model('Docs', docsSchema)
+module.exports = mongoose.model('Doc', docsSchema)
