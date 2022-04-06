@@ -6,10 +6,10 @@ const cors = require('cors');
 require('dotenv').config();
 const Doc = require('./models/Doc');
 
-const SOCKET_PORT = process.env.SOCKET_PORT || 5000
 const PORT = process.env.PORT || 7000
 
-const io = require('socket.io')(SOCKET_PORT, {
+const server = require('http').Server(app)
+const io = require('socket.io')(server, {
     cors: {
         origin: "http://localhost:3000",
         methods: ["GET", "POST"]
@@ -87,6 +87,6 @@ app.post('/dbGet', jsonParser, async (req, res) => {
     })
 })
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)
 })

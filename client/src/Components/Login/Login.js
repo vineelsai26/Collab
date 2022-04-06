@@ -1,4 +1,3 @@
-import './Login.css'
 import { GoogleLogin } from 'react-google-login'
 
 export default function Login() {
@@ -11,7 +10,7 @@ export default function Login() {
 	) {
 		window.location.href = '/'
 		return (
-			<div></div>
+			<div>Redirecting...</div>
 		)
 	} else {
 		const responseGoogle = (response) => {

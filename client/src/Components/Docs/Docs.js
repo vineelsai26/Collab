@@ -1,9 +1,8 @@
-import './Docs.css'
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import io from "socket.io-client"
 
-const SERVER = "http://127.0.0.1:5000"
+const SERVER = process.env.REACT_APP_BACKEND_URL
 let socket
 
 export default function Docs() {
@@ -16,7 +15,7 @@ export default function Docs() {
 	}
 
 	useEffect(() => {
-		fetch('http://localhost:7000/dbGet', {
+		fetch(SERVER + '/dbGet', {
 			method: 'POST',
 			mode: 'cors',
 			headers: {
@@ -30,7 +29,7 @@ export default function Docs() {
 				console.log(data.error)
 			} if (data && data.content) {
 				setDocs(data.content)
-			} if (data && data.accessList){
+			} if (data && data.accessList) {
 				setEmailList(data.accessList)
 			} else {
 				console.log("No data")
@@ -56,7 +55,7 @@ export default function Docs() {
 	}, [docs])
 
 	const handleSave = () => {
-		fetch('http://localhost:7000/dbGet', {
+		fetch(SERVER + '/dbGet', {
 			method: 'POST',
 			mode: 'cors',
 			headers: {
@@ -93,12 +92,13 @@ export default function Docs() {
 		<div className="App">
 			<textarea
 				value={docs}
+				style={{ width: '100%', height: '70vh' }}
 				onChange={(e) => handleChange(e)} /> <br></br>
 			<button onClick={handleSave}>
 				Save
 			</button><br></br>
 
-			<input value={emailList} onChange={(e) => handleEmailChange(e)} /><br></br>
+			<input style={{ width: '100%' }} value={emailList} onChange={(e) => handleEmailChange(e)} /><br></br>
 			<button onClick={handleSave}>
 				Save Email List
 			</button>
