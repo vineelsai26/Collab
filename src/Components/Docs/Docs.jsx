@@ -85,6 +85,10 @@ export default function Docs() {
 		})
 	}, [editorState])
 
+	useEffect(() => {
+		document.title = title
+	},[title])
+
 	const handleSnackBarClose = () => {
 		setSnackBarState(false);
 	};
