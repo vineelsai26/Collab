@@ -27,7 +27,7 @@ const style = {
     p: 4,
 };
 
-const Navbar = ({ user, page, handleSave, handleEmailChange, emailList }) => {
+const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTitleChange, title }) => {
     const [anchorElUser, setAnchorElUser] = React.useState(null);
 
     const [open, setOpen] = React.useState(false);
@@ -47,6 +47,7 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList }) => {
             setAnchorElUser(null);
         }
     };
+
     return (
         <AppBar position="static">
             <Container>
@@ -63,8 +64,9 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList }) => {
                     <Box sx={{ display: 'flex' }}>
                         {page === 'docs' && (
                             <>
-                                <Button onClick={handleSave} variant='outlined' color="inherit" sx={{ mr: 1 }}>Save</Button>
+                                <OutlinedInput value={title} onChange={handleTitleChange} color="success" sx={{ mr: 1, color: 'white' }} />
                                 <Button onClick={handleOpen} variant='outlined' color="inherit" sx={{ mr: 1 }}>Share</Button>
+                                <Button onClick={handleSave} variant='outlined' color="inherit" sx={{ mr: 1 }}>Save</Button>
                             </>
                         )}
 
@@ -91,7 +93,6 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList }) => {
                             </IconButton>
                         </Tooltip>
                         <Box sx={{ flexGrow: 0 }}>
-
                             <Menu
                                 sx={{ mt: '45px' }}
                                 id="menu-appbar"

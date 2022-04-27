@@ -25,6 +25,9 @@ export default function Docs() {
 		window.location.href = '/login'
 	}
 
+	const [title, setTitle] = useState('')
+	const [noOfUsers, setNoOfUsers] = useState(0)
+
 	const [editorState, setEditorState] = useState(EditorState.createEmpty());
 	const [snackBarState, setSnackBarState] = useState(false)
 
@@ -49,6 +52,8 @@ export default function Docs() {
 				)
 			} if (data && data.accessList) {
 				setEmailList(data.accessList)
+			} if (data && data.title) {
+				setTitle(data.title)
 			} else {
 				console.log("No data")
 			}
@@ -58,20 +63,24 @@ export default function Docs() {
 
 		socket = io(SERVER, { query: { id: pageId } })
 		socket.on('connect', () => {
-			socket.emit('join')
-			socket.on('receive', ({ message }) => {
+			socket.on('receive', ({ message, noOfUsers }) => {
+				setNoOfUsers(noOfUsers)
 				setEditorState(
 					EditorState.createWithContent(
 						convertFromRaw(JSON.parse(JSON.stringify(message)))
 					)
 				)
 			})
+			socket.emit('join')
+			socket.on('userLeft', ({ noOfUsers }) => {
+				setNoOfUsers(noOfUsers)
+			})
 		})
 	}, [])
 
 	useEffect(() => {
-		const content = convertToRaw(editorState.getCurrentContent())
 		socket.on('join', () => {
+			const content = convertToRaw(editorState.getCurrentContent())
 			socket.emit('send', { message: content })
 		})
 	}, [editorState])
@@ -88,7 +97,7 @@ export default function Docs() {
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ pageId: pageId, email: user.profileObj.email, content: content, addEmail: emailList })
+			body: JSON.stringify({ pageId: pageId, email: user.profileObj.email, title: title, content: content, addEmail: emailList })
 		}).then(async (res) => {
 			const data = await res.json()
 			if (data && data.error) {
@@ -100,6 +109,7 @@ export default function Docs() {
 						convertFromRaw(JSON.parse(data.content))
 					)
 				)
+				setTitle(data.title)
 				setSnackBarState(true)
 			} else {
 				console.log("No data")
@@ -115,16 +125,22 @@ export default function Docs() {
 		setEmailList(emails)
 	}
 
-	const onEditorStateChange = (editorState) => {
-		setEditorState(editorState)
+	const onEditorStateChange = (editor) => {
+		const skipSend = (editorState.getCurrentContent() === editor.getCurrentContent())
+		setEditorState(editor)
+		if (noOfUsers > 1 && !skipSend) {
+			const content = convertToRaw(editor.getCurrentContent())
+			socket.emit('send', { message: content })
+		}
+	}
 
-		const content = convertToRaw(editorState.getCurrentContent())
-		socket.emit('send', { message: content })
+	const handleTitleChange = (e) => {
+		setTitle(e.target.value)
 	}
 
 	return (
 		<div>
-			<Navbar user={user} page={"docs"} handleSave={handleSave} handleEmailChange={handleEmailChange} emailList={emailList} />
+			<Navbar user={user} page={"docs"} handleSave={handleSave} handleEmailChange={handleEmailChange} emailList={emailList} handleTitleChange={handleTitleChange} title={title} />
 			<div style={{ backgroundColor: '#F1F1F1', justifyContent: 'center', display: 'flex' }}>
 				<div className='editor' style={{ width: '100vw', backgroundColor: '#F1F1F1', minHeight: '100vh' }}>
 					<Editor
@@ -137,7 +153,7 @@ export default function Docs() {
 						}}
 						editorStyle={{
 							minHeight: '100vh',
-							padding: '20px',
+							padding: '80px',
 							backgroundColor: 'white',
 							border: '1px solid #F1F1F1',
 							borderRadius: '5px',
@@ -146,6 +162,7 @@ export default function Docs() {
 							margin: 'auto',
 							marginBottom: '20px',
 						}}
+						placeholder='Write your document here...'
 					/>
 					<Snackbar open={snackBarState} autoHideDuration={5000} onClose={handleSnackBarClose}>
 						<Alert severity="success" sx={{ width: '100%' }}>
