@@ -87,7 +87,7 @@ export default function Docs() {
 
 	useEffect(() => {
 		document.title = title
-	},[title])
+	}, [title])
 
 	const handleSnackBarClose = () => {
 		setSnackBarState(false);
@@ -130,12 +130,12 @@ export default function Docs() {
 	}
 
 	const onEditorStateChange = (editor) => {
-		const skipSend = (editorState.getCurrentContent() === editor.getCurrentContent())
+		// const skipSend = (editorState.getCurrentContent() === editor.getCurrentContent())
 		setEditorState(editor)
-		if (noOfUsers > 1 && !skipSend) {
-			const content = convertToRaw(editor.getCurrentContent())
-			socket.emit('send', { message: content })
-		}
+		// if (noOfUsers > 1 && !skipSend) {
+		const content = convertToRaw(editor.getCurrentContent())
+		socket.emit('send', { message: content })
+		// }
 	}
 
 	const handleTitleChange = (e) => {
