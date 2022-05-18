@@ -11,7 +11,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
-import { Input, OutlinedInput } from '@mui/material';
+import { FormControlLabel, Input, OutlinedInput, Switch } from '@mui/material';
 
 const settings = ['Profile', 'Logout'];
 
@@ -27,7 +27,7 @@ const style = {
     p: 4,
 };
 
-const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTitleChange, title }) => {
+const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTitleChange, title, publicAccess, setPublicAccess }) => {
     const [anchorElUser, setAnchorElUser] = React.useState(null);
 
     const [open, setOpen] = React.useState(false);
@@ -47,6 +47,10 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTi
             setAnchorElUser(null);
         }
     };
+
+    const handleCheckChange = (event) => {
+        setPublicAccess(event.target.checked);
+    }
 
     return (
         <AppBar position="static">
@@ -77,11 +81,31 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTi
                             aria-describedby="modal-modal-description"
                         >
                             <Box sx={style}>
-                                <Typography id="modal-modal-title" variant="h6" component="h2">
+                                <Typography
+                                    id="modal-modal-title"
+                                    variant="h6"
+                                    component="h2"
+                                >
                                     Share
                                 </Typography>
-                                <OutlinedInput value={emailList} onChange={handleEmailChange} sx={{ margin: '20px', width: '100%', marginLeft: '0px' }} type="text" placeholder="Enter emails Seperated by comma" />
-                                <Button onClick={() => { handleSave(); handleClose() }} variant="contained" color="primary" sx={{ margin: '20px', width: '100%', marginLeft: '0px' }}>
+                                <OutlinedInput
+                                    value={emailList}
+                                    onChange={handleEmailChange}
+                                    sx={{ margin: '20px', width: '100%', marginLeft: '0px' }}
+                                    type="text"
+                                    placeholder="Enter emails Seperated by comma"
+                                />
+                                <FormControlLabel
+                                    control={<Switch defaultChecked={publicAccess} onChange={handleCheckChange} />}
+                                    label={publicAccess ? "Public" : "Private"}
+                                    labelPlacement="start"
+                                />
+                                <Button
+                                    onClick={() => { handleSave(); handleClose() }}
+                                    variant="contained"
+                                    color="primary"
+                                    sx={{ margin: '20px', width: '100%', marginLeft: '0px' }}
+                                >
                                     Share
                                 </Button>
                             </Box>

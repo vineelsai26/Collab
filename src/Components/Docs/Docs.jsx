@@ -27,6 +27,7 @@ export default function Docs() {
 
 	const [title, setTitle] = useState('')
 	const [noOfUsers, setNoOfUsers] = useState(0)
+	const [publicAccess, setPublicAccess] = useState(false)
 
 	const [editorState, setEditorState] = useState(EditorState.createEmpty());
 	const [snackBarState, setSnackBarState] = useState(false)
@@ -52,6 +53,7 @@ export default function Docs() {
 				)
 			} if (data && data.accessList) {
 				setEmailList(data.accessList)
+				setPublicAccess(data.accessType === 'public')
 			} if (data && data.title) {
 				setTitle(data.title)
 			} else {
@@ -101,7 +103,14 @@ export default function Docs() {
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ pageId: pageId, email: user.profileObj.email, title: title, content: content, addEmail: emailList })
+			body: JSON.stringify({
+				pageId: pageId,
+				email: user.profileObj.email,
+				title: title,
+				content: content,
+				accessType: publicAccess ? "public" : "private",
+				addEmail: emailList
+			})
 		}).then(async (res) => {
 			const data = await res.json()
 			if (data && data.error) {
@@ -130,12 +139,12 @@ export default function Docs() {
 	}
 
 	const onEditorStateChange = (editor) => {
-		// const skipSend = (editorState.getCurrentContent() === editor.getCurrentContent())
+		const skipSend = (editorState.getCurrentContent() === editor.getCurrentContent())
 		setEditorState(editor)
-		// if (noOfUsers > 1 && !skipSend) {
-		const content = convertToRaw(editor.getCurrentContent())
-		socket.emit('send', { message: content })
-		// }
+		if (noOfUsers > 1 && !skipSend) {
+			const content = convertToRaw(editor.getCurrentContent())
+			socket.emit('send', { message: content })
+		}
 	}
 
 	const handleTitleChange = (e) => {
@@ -144,7 +153,7 @@ export default function Docs() {
 
 	return (
 		<div>
-			<Navbar user={user} page={"docs"} handleSave={handleSave} handleEmailChange={handleEmailChange} emailList={emailList} handleTitleChange={handleTitleChange} title={title} />
+			<Navbar user={user} page={"docs"} handleSave={handleSave} handleEmailChange={handleEmailChange} emailList={emailList} handleTitleChange={handleTitleChange} title={title} publicAccess={publicAccess} setPublicAccess={setPublicAccess} />
 			<div style={{ backgroundColor: '#F1F1F1', justifyContent: 'center', display: 'flex' }}>
 				<div className='editor' style={{ width: '100vw', backgroundColor: '#F1F1F1', minHeight: '100vh' }}>
 					<Editor
