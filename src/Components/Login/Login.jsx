@@ -16,9 +16,15 @@ export default function Login() {
 		)
 	} else {
 		const responseGoogle = (response) => {
-			console.log(response)
-			localStorage.setItem('user', JSON.stringify(response))
-			window.location.href = "/"
+			if (response.profileObj !== null && response.profileObj !== undefined) {
+				localStorage.setItem('user', JSON.stringify(response))
+				window.location.href = '/'
+			} else if (response.error !== null && response.error !== undefined) {
+				if (response.error === "popup_closed_by_user") {
+					window.location.href = '/login'
+				}
+				alert(response.details)
+			}
 		}
 		return (
 			<div style={{ backgroundImage: `url('/background.webp')`, backgroundSize: '100%', height: '100vh', display: 'flex' }}>
@@ -29,10 +35,10 @@ export default function Login() {
 						</Typography>
 						<Box sx={{ marginTop: '100px' }}>
 							<GoogleLogin
-								clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+								clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
 								buttonText="Sign in with Google"
 								accessType="offline"
-								redirectUri={process.env.REACT_APP_URL}
+								redirectUri={import.meta.env.VITE_URL}
 								onSuccess={responseGoogle}
 								onFailure={responseGoogle}
 							/>

@@ -14,7 +14,7 @@ const Alert = React.forwardRef(function Alert(
 	return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const SERVER = process.env.REACT_APP_BACKEND_URL
+const SERVER = import.meta.env.VITE_BACKEND_URL
 let socket
 
 export default function Docs() {
