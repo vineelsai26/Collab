@@ -6,7 +6,7 @@ import Login from './Components/Login/Login'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import Logout from './Components/Logout/Logout'
-import { StyledEngineProvider } from '@mui/material/styles';
+import { StyledEngineProvider } from '@mui/material/styles'
 
 const root = document.getElementById('root')
 

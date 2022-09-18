@@ -2,8 +2,8 @@ import { IconButton, Paper } from "@mui/material"
 import { Box } from "@mui/system"
 import Navbar from "../Navbar/Navbar"
 import { useState, useEffect } from 'react'
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const SERVER = import.meta.env.VITE_BACKEND_URL
 

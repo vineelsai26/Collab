@@ -1,19 +1,19 @@
-import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import Modal from '@mui/material/Modal';
-import { FormControlLabel, Input, OutlinedInput, Switch } from '@mui/material';
+import React from 'react'
+import AppBar from '@mui/material/AppBar'
+import Box from '@mui/material/Box'
+import Toolbar from '@mui/material/Toolbar'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import Menu from '@mui/material/Menu'
+import Container from '@mui/material/Container'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
+import { FormControlLabel, Input, OutlinedInput, Switch } from '@mui/material'
 
-const settings = ['Profile', 'Logout'];
+const settings = ['Profile', 'Logout']
 
 const style = {
     position: 'absolute',
@@ -25,31 +25,31 @@ const style = {
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
-};
+}
 
 const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTitleChange, title, publicAccess, setPublicAccess }) => {
-    const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const [anchorElUser, setAnchorElUser] = React.useState(null)
 
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const [open, setOpen] = React.useState(false)
+    const handleOpen = () => setOpen(true)
+    const handleClose = () => setOpen(false)
 
     const handleOpenUserMenu = (event) => {
-        setAnchorElUser(event.currentTarget);
-    };
+        setAnchorElUser(event.currentTarget)
+    }
 
     const handleCloseUserMenu = (event) => {
         if (event.target.childNodes[0] && event.target.childNodes[0].nodeValue === 'Profile') {
-            window.location.href = '/profile';
+            window.location.href = '/profile'
         } else if (event.target.childNodes[0] && event.target.childNodes[0].nodeValue === 'Logout') {
-            window.location.href = '/logout';
+            window.location.href = '/logout'
         } else {
-            setAnchorElUser(null);
+            setAnchorElUser(null)
         }
-    };
+    }
 
     const handleCheckChange = (event) => {
-        setPublicAccess(event.target.checked);
+        setPublicAccess(event.target.checked)
     }
 
     return (
@@ -144,6 +144,6 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTi
                 </Toolbar>
             </Container>
         </AppBar>
-    );
-};
-export default Navbar;
+    )
+}
+export default Navbar

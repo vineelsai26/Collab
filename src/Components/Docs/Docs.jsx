@@ -2,17 +2,17 @@ import { useParams } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
 import io from "socket.io-client"
 import Navbar from '../Navbar/Navbar'
-import { EditorState, convertToRaw, convertFromRaw } from "draft-js";
+import { EditorState, convertToRaw, convertFromRaw } from "draft-js"
 import { Editor } from "react-draft-wysiwyg"
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert from '@mui/material/Alert'
 
 const Alert = React.forwardRef(function Alert(
 	props,
 	ref,
 ) {
-	return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
+	return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
+})
 
 const SERVER = import.meta.env.VITE_BACKEND_URL
 let socket
@@ -29,7 +29,7 @@ export default function Docs() {
 	const [noOfUsers, setNoOfUsers] = useState(0)
 	const [publicAccess, setPublicAccess] = useState(false)
 
-	const [editorState, setEditorState] = useState(EditorState.createEmpty());
+	const [editorState, setEditorState] = useState(EditorState.createEmpty())
 	const [snackBarState, setSnackBarState] = useState(false)
 
 	useEffect(() => {
@@ -92,8 +92,8 @@ export default function Docs() {
 	}, [title])
 
 	const handleSnackBarClose = () => {
-		setSnackBarState(false);
-	};
+		setSnackBarState(false)
+	}
 
 	const handleSave = () => {
 		const content = convertToRaw(editorState.getCurrentContent())
