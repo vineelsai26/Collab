@@ -17,8 +17,8 @@
     "react-dom": "^18.2.0",
     "react-draft-wysiwyg": "^1.15.0",
     "react-google-login": "^5.2.2",
+    "socket.io-client": "^4.6.1",
     "react-router-dom": "^6.10.0",
-    "socket.io-client": "^4.5.4",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
