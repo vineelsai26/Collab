@@ -2,10 +2,9 @@ import { useParams } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
 import io, { Socket } from "socket.io-client"
 import Navbar from '../Navbar/Navbar'
-import { EditorState, convertToRaw, convertFromRaw } from "draft-js"
-import { Editor } from "react-draft-wysiwyg"
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
+import { Editor } from '@monaco-editor/react'
 
 const Alert = React.forwardRef(function Alert(
 	props: any,
@@ -32,10 +31,11 @@ export default function Docs() {
 	}
 
 	const [title, setTitle] = useState('')
-	const [noOfUsers, setNoOfUsers] = useState(0)
 	const [publicAccess, setPublicAccess] = useState(false)
 
-	const [editorState, setEditorState] = useState(EditorState.createEmpty())
+	const [editorContent, setEditorContent] = useState<string[]>([])
+	const [editorPrevContent, setEditorPrevContent] = useState<string[]>(editorContent)
+
 	const [snackBarState, setSnackBarState] = useState(false)
 
 	useEffect(() => {
@@ -52,11 +52,7 @@ export default function Docs() {
 				window.location.href = '/'
 				console.log(data.error)
 			} if (data && data.content) {
-				setEditorState(
-					EditorState.createWithContent(
-						convertFromRaw(JSON.parse(data.content))
-					)
-				)
+				setEditorContent(data.content.split('\n'))
 			} if (data && data.accessList) {
 				setEmailList(data.accessList)
 				setPublicAccess(data.accessType === 'public')
@@ -71,27 +67,29 @@ export default function Docs() {
 
 		socket = io(SERVER, { query: { id: pageId } })
 		socket.on('connect', () => {
-			socket.on('receive', ({ message, noOfUsers }) => {
-				setNoOfUsers(noOfUsers)
-				setEditorState(
-					EditorState.createWithContent(
-						convertFromRaw(JSON.parse(JSON.stringify(message)))
-					)
-				)
+			console.log('connected')
+			socket.on('receive', async ({ message, index }: {message: string, index: number}) => {
+				if (index === -1) {
+					setEditorContent(message.split('\n'))
+				} else {
+					if (index >= editorContent.length) {
+						for (let i = editorContent.length; i < index; i++) {
+							editorContent.push('')
+						}
+					}
+					editorContent[index] = message
+					setEditorContent([...editorContent])
+				}
 			})
 			socket.emit('join')
-			socket.on('userLeft', ({ noOfUsers }) => {
-				setNoOfUsers(noOfUsers)
-			})
 		})
 	}, [])
 
 	useEffect(() => {
 		socket.on('join', () => {
-			const content = convertToRaw(editorState.getCurrentContent())
-			socket.emit('send', { message: content })
+			socket.emit('send', { message: editorContent.join('\n'), index: -1 })
 		})
-	}, [editorState])
+	}, [editorContent])
 
 	useEffect(() => {
 		document.title = title
@@ -102,7 +100,6 @@ export default function Docs() {
 	}
 
 	const handleSave = () => {
-		const content = convertToRaw(editorState.getCurrentContent())
 		fetch(SERVER + '/dbGet', {
 			method: 'POST',
 			mode: 'cors',
@@ -113,7 +110,7 @@ export default function Docs() {
 				pageId: pageId,
 				email: user.profileObj.email,
 				title: title,
-				content: content,
+				content: editorContent.join('\n'),
 				accessType: publicAccess ? "public" : "private",
 				addEmail: emailList
 			})
@@ -123,11 +120,7 @@ export default function Docs() {
 				console.log(data.error)
 				window.location.href = '/'
 			} else if (data && data.content) {
-				setEditorState(
-					EditorState.createWithContent(
-						convertFromRaw(JSON.parse(data.content))
-					)
-				)
+				setEditorContent(data.content.split('\n'))
 				setTitle(data.title)
 				setSnackBarState(true)
 			} else {
@@ -144,12 +137,17 @@ export default function Docs() {
 		setEmailList(emails)
 	}
 
-	const onEditorStateChange = (editor: any) => {
-		const skipSend = (editorState.getCurrentContent() === editor.getCurrentContent())
-		setEditorState(editor)
-		if (noOfUsers > 1 && !skipSend) {
-			const content = convertToRaw(editor.getCurrentContent())
-			socket.emit('send', { message: content })
+	const onEditorStateChange = (value: string | undefined) => {
+		if (value) {
+			const newEditorContent = [...value.split('\n')]
+			setEditorContent(newEditorContent)
+			if (editorPrevContent.join('\n') === value) {
+				return
+			}
+
+			socket.emit('send', { message: newEditorContent.join('\n'), index: -1 })
+
+			setEditorPrevContent(editorContent)
 		}
 	}
 
@@ -163,25 +161,16 @@ export default function Docs() {
 			<div style={{ backgroundColor: '#F1F1F1', justifyContent: 'center', display: 'flex' }}>
 				<div className='editor' style={{ width: '100vw', backgroundColor: '#F1F1F1', minHeight: '100vh' }}>
 					<Editor
-						editorState={editorState}
-						onEditorStateChange={onEditorStateChange}
-						toolbarStyle={{
-							position: 'sticky',
-							top: 0,
-							zIndex: 1000,
+						height="100vh"
+						defaultLanguage="markdown"
+						defaultValue=""
+						value={editorContent.join('\n')}
+						options={{
+							minimap: {
+								enabled: false
+							}
 						}}
-						editorStyle={{
-							minHeight: '100vh',
-							padding: '80px',
-							backgroundColor: 'white',
-							border: '1px solid #F1F1F1',
-							borderRadius: '5px',
-							boxShadow: '0px 0px 10px #F1F1F1',
-							width: '80%',
-							margin: 'auto',
-							marginBottom: '20px',
-						}}
-						placeholder='Write your document here...'
+						onChange={onEditorStateChange}
 					/>
 					<Snackbar open={snackBarState} autoHideDuration={5000} onClose={handleSnackBarClose}>
 						<Alert severity="success" sx={{ width: '100%' }}>
