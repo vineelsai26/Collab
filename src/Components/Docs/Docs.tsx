@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
-import io from "socket.io-client"
+import io, { Socket } from "socket.io-client"
 import Navbar from '../Navbar/Navbar'
 import { EditorState, convertToRaw, convertFromRaw } from "draft-js"
 import { Editor } from "react-draft-wysiwyg"
@@ -8,19 +8,25 @@ import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
 
 const Alert = React.forwardRef(function Alert(
-	props,
+	props: any,
 	ref,
 ) {
 	return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
 })
 
 const SERVER = import.meta.env.VITE_BACKEND_URL
-let socket
+let socket: Socket
 
 export default function Docs() {
-	const [emailList, setEmailList] = useState([])
+	const [emailList, setEmailList] = useState<string[]>([])
 	const { pageId } = useParams()
-	const user = JSON.parse(localStorage.getItem('user'))
+
+	const userStorage = localStorage.getItem('user')
+	if (!userStorage) {
+		window.location.href = '/login'
+		return
+	}
+	const user = JSON.parse(userStorage)
 	if (!!!user) {
 		window.location.href = '/login'
 	}
@@ -132,13 +138,13 @@ export default function Docs() {
 		})
 	}
 
-	const handleEmailChange = (e) => {
-		let emails = e.target.value.split(',')
+	const handleEmailChange = (e: any) => {
+		let emails = e.target.value.split(',') as string[]
 		emails = emails.map((email) => email.trim())
 		setEmailList(emails)
 	}
 
-	const onEditorStateChange = (editor) => {
+	const onEditorStateChange = (editor: any) => {
 		const skipSend = (editorState.getCurrentContent() === editor.getCurrentContent())
 		setEditorState(editor)
 		if (noOfUsers > 1 && !skipSend) {
@@ -147,7 +153,7 @@ export default function Docs() {
 		}
 	}
 
-	const handleTitleChange = (e) => {
+	const handleTitleChange = (e: any) => {
 		setTitle(e.target.value)
 	}
 

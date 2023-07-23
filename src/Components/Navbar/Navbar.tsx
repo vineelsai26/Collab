@@ -11,7 +11,8 @@ import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
 import Modal from '@mui/material/Modal'
-import { FormControlLabel, Input, OutlinedInput, Switch } from '@mui/material'
+import { FormControlLabel, OutlinedInput, Switch } from '@mui/material'
+import { GoogleLoginResponse } from 'react-google-login'
 
 const settings = ['Profile', 'Logout']
 
@@ -27,18 +28,30 @@ const style = {
     p: 4,
 }
 
-const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTitleChange, title, publicAccess, setPublicAccess }) => {
+type NavbarProps = {
+    user: GoogleLoginResponse
+    page?: string
+    handleSave?: () => void
+    handleEmailChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+    emailList?: string[]
+    handleTitleChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+    title?: string
+    publicAccess?: boolean
+    setPublicAccess?: (value: boolean) => void
+}
+
+const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTitleChange, title, publicAccess, setPublicAccess }: NavbarProps) => {
     const [anchorElUser, setAnchorElUser] = React.useState(null)
 
     const [open, setOpen] = React.useState(false)
     const handleOpen = () => setOpen(true)
     const handleClose = () => setOpen(false)
 
-    const handleOpenUserMenu = (event) => {
+    const handleOpenUserMenu = (event: any) => {
         setAnchorElUser(event.currentTarget)
     }
 
-    const handleCloseUserMenu = (event) => {
+    const handleCloseUserMenu = (event: any) => {
         if (event.target.childNodes[0] && event.target.childNodes[0].nodeValue === 'Profile') {
             window.location.href = '/profile'
         } else if (event.target.childNodes[0] && event.target.childNodes[0].nodeValue === 'Logout') {
@@ -48,8 +61,10 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTi
         }
     }
 
-    const handleCheckChange = (event) => {
-        setPublicAccess(event.target.checked)
+    const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (setPublicAccess){
+            setPublicAccess(event.target.checked)
+        }
     }
 
     return (
@@ -101,7 +116,7 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTi
                                     labelPlacement="start"
                                 />
                                 <Button
-                                    onClick={() => { handleSave(); handleClose() }}
+                                    onClick={() => { handleSave && handleSave(); handleClose() }}
                                     variant="contained"
                                     color="primary"
                                     sx={{ margin: '20px', width: '100%', marginLeft: '0px' }}

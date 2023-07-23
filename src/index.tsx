@@ -10,11 +10,11 @@ import { StyledEngineProvider } from '@mui/material/styles'
 
 const root = document.getElementById('root')
 
-ReactDOM.createRoot(root).render(
+ReactDOM.createRoot(root!).render(
 	<StyledEngineProvider injectFirst>
 		<BrowserRouter>
 			<Routes>
-				<Route exact path="/" element={<App />} />
+				<Route path="/" element={<App />} />
 				<Route path="/docs/" element={<Navigate to={"/docs/" + uuidv4()} />} />
 				<Route path="/docs/new" element={<Navigate to={"/docs/" + uuidv4()} />} />
 				<Route path="/docs/:pageId" element={<Docs />} />

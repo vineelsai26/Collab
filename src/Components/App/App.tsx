@@ -1,21 +1,39 @@
 import { IconButton, Paper } from "@mui/material"
-import { Box } from "@mui/system"
+import { Box } from "@mui/material"
 import Navbar from "../Navbar/Navbar"
 import { useState, useEffect } from 'react'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import React from 'react'
 
 const SERVER = import.meta.env.VITE_BACKEND_URL
 
+type Docs = {
+	id: string,
+	title: string,
+	content: string,
+	owner: string,
+	shared: string[]
+}
+
+type DeleteVisible = {
+	[key: string]: boolean
+}
+
 function App() {
-	const user = JSON.parse(localStorage.getItem('user'))
+	const userStorage = localStorage.getItem('user')
+	if (!userStorage){
+		window.location.href = '/login'
+		return
+	}
+	const user = JSON.parse(userStorage)
 	if (!!!user) {
 		window.location.href = '/login'
 	}
 
-	const [deleteVisible, setDeleteVisible] = useState({})
+	const [deleteVisible, setDeleteVisible] = useState<DeleteVisible>({})
 
-	const [docs, setDocs] = useState([])
+	const [docs, setDocs] = useState<Docs[]>([])
 
 	useEffect(() => {
 		fetch(SERVER + '/myDocs', {
@@ -37,15 +55,15 @@ function App() {
 		})
 	}, [])
 
-	const handleMouseOver = (id) => {
+	const handleMouseOver = (id: any) => {
 		setDeleteVisible({ ...deleteVisible, [id]: true })
 	}
 
-	const handleMouseLeave = (id) => {
+	const handleMouseLeave = (id: any) => {
 		setDeleteVisible({ ...deleteVisible, [id]: false })
 	}
 
-	const handleDocDelete = (e, id) => {
+	const handleDocDelete = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: any) => {
 		e.stopPropagation()
 		fetch(SERVER + '/deleteDoc', {
 			method: 'POST',
@@ -66,14 +84,14 @@ function App() {
 		})
 	}
 
-	const handleDocEdit = (e, id) => {
+	const handleDocEdit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: string) => {
 		e.stopPropagation()
 		window.location.href = `/docs/${id}`
 	}
 
 	return (
 		<div style={{ backgroundColor: '#F5F5F5' }}>
-			<Navbar user={user} />
+			<Navbar user={user} page={undefined} handleSave={undefined} handleEmailChange={undefined} emailList={undefined} handleTitleChange={undefined} title={undefined} publicAccess={undefined} setPublicAccess={undefined} />
 			<Box sx={{ width: '80%', margin: 'auto', minHeight: '100vh' }}>
 				<Paper sx={{ width: '150px', height: '200px', margin: '20px', cursor: 'pointer', float: 'left' }} onClick={() => window.location.href = '/docs'}>
 					<img style={{
