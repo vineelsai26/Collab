@@ -5,6 +5,7 @@ import Navbar from '../Navbar/Navbar'
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
 import { Editor } from '@monaco-editor/react'
+import CryptoJS from 'crypto-js'
 
 const Alert = React.forwardRef(function Alert(
 	props: any,
@@ -15,6 +16,11 @@ const Alert = React.forwardRef(function Alert(
 
 const SERVER = import.meta.env.VITE_BACKEND_URL
 let socket: Socket
+
+function generateHash(message: string) {
+	const hash = CryptoJS.SHA256(message)
+	return hash.toString()
+}
 
 export default function Docs() {
 	const [emailList, setEmailList] = useState<string[]>([])
@@ -34,8 +40,6 @@ export default function Docs() {
 	const [publicAccess, setPublicAccess] = useState(false)
 
 	const [editorContent, setEditorContent] = useState<string[]>([])
-	const [editorPrevContent, setEditorPrevContent] = useState<string[]>(editorContent)
-
 	const [snackBarState, setSnackBarState] = useState(false)
 
 	useEffect(() => {
@@ -68,27 +72,51 @@ export default function Docs() {
 		socket = io(SERVER, { query: { id: pageId } })
 		socket.on('connect', () => {
 			console.log('connected')
-			socket.on('receive', async ({ message, index }: {message: string, index: number}) => {
+			socket.on('receive', async ({ message, index }: { message: string, index: number, length: number }) => {
+				console.log("received lines", index, message)
 				if (index === -1) {
 					setEditorContent(message.split('\n'))
 				} else {
-					if (index >= editorContent.length) {
-						for (let i = editorContent.length; i < index; i++) {
-							editorContent.push('')
-						}
-					}
-					editorContent[index] = message
-					setEditorContent([...editorContent])
+					setEditorContent((editorContent) => {
+						const newEditorContent = [...editorContent]
+						newEditorContent[index] = message
+						return newEditorContent
+					})
 				}
+			})
+
+			socket.on('title', async (title: string) => {
+				setTitle(title)
 			})
 			socket.emit('join')
 		})
 	}, [])
 
 	useEffect(() => {
-		socket.on('join', () => {
-			socket.emit('send', { message: editorContent.join('\n'), index: -1 })
-		})
+		if (editorContent && editorContent.length > 0 && socket && socket.connected) {
+			socket.on('join', () => {
+				socket.emit('send', { message: editorContent.join('\n'), index: -1, length: editorContent.length })
+			})
+
+			socket.on('receive_hash', async ({ hash, index }: { hash: string, index: number }) => {
+				console.log("received hash", index, hash)
+				if (index > editorContent.length || generateHash(editorContent[index]) !== hash) {
+					socket.emit('request', { hash: hash, index: index })
+				}
+			})
+
+			socket.on('requested_lines', async ({ hash, index }: { hash: string, index: number }) => {
+				if (generateHash(editorContent[index]) == hash) {
+					console.log("requested lines", index)
+					socket.emit('send', { message: editorContent[index], index: index, length: editorContent.length })
+				}
+			})
+
+			return () => {
+				socket.off("receive_hash")
+				socket.off("requested_lines")
+			}
+		}
 	}, [editorContent])
 
 	useEffect(() => {
@@ -137,22 +165,26 @@ export default function Docs() {
 		setEmailList(emails)
 	}
 
-	const onEditorStateChange = (value: string | undefined) => {
+	const onEditorStateChange = async (value: string | undefined) => {
 		if (value) {
 			const newEditorContent = [...value.split('\n')]
 			setEditorContent(newEditorContent)
-			if (editorPrevContent.join('\n') === value) {
-				return
+
+			for (let i = 0; i < newEditorContent.length; i++) {
+				if (i >= editorContent.length || generateHash(newEditorContent[i]) !== generateHash(editorContent[i])) {
+					socket.emit('send_hash', {
+						hash: generateHash(newEditorContent[i]),
+						index: i,
+						length: newEditorContent.length
+					})
+				}
 			}
-
-			socket.emit('send', { message: newEditorContent.join('\n'), index: -1 })
-
-			setEditorPrevContent(editorContent)
 		}
 	}
 
 	const handleTitleChange = (e: any) => {
 		setTitle(e.target.value)
+		socket.emit('title', e.target.value)
 	}
 
 	return (
