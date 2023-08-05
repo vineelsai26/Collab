@@ -41,29 +41,37 @@ export default function Docs() {
 
 	const [editorContent, setEditorContent] = useState<string[]>([])
 	const [snackBarState, setSnackBarState] = useState(false)
+	const [snackBarMessage, setSnackBarMessage] = useState({
+		message: 'Success!',
+		type: 'success'
+	})
 
 	useEffect(() => {
-		fetch(SERVER + '/dbGet', {
-			method: 'POST',
+		fetch(`${SERVER}/doc/${pageId}`, {
+			method: 'GET',
 			mode: 'cors',
 			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ pageId: pageId, email: user.profileObj.email })
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${user.tokenObj.id_token}`
+			}
 		}).then(async (res) => {
-			const data = await res.json()
-			if (data && data.error) {
-				window.location.href = '/'
-				console.log(data.error)
-			} if (data && data.content) {
-				setEditorContent(data.content.split('\n'))
-			} if (data && data.accessList) {
-				setEmailList(data.accessList)
-				setPublicAccess(data.accessType === 'public')
-			} if (data && data.title) {
-				setTitle(data.title)
-			} else {
-				console.log("No data")
+			if (res.status === 200) {
+				const data = await res.json()
+				if (data && data.error) {
+					window.location.href = '/'
+					console.log(data.error)
+				} if (data && data.content) {
+					setEditorContent(data.content.split('\n'))
+				} if (data && data.accessList) {
+					setEmailList(data.accessList)
+					setPublicAccess(data.accessType === 'public')
+				} if (data && data.title) {
+					setTitle(data.title)
+				} else {
+					console.log("No data")
+				}
+			} else if (res.status === 401) {
+				window.location.href = '/logout'
 			}
 		}).catch(err => {
 			console.log(err)
@@ -128,15 +136,15 @@ export default function Docs() {
 	}
 
 	const handleSave = () => {
-		fetch(SERVER + '/dbGet', {
-			method: 'POST',
+		fetch(`${SERVER}/doc`, {
+			method: 'PATCH',
 			mode: 'cors',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${user.tokenObj.id_token}`
 			},
 			body: JSON.stringify({
 				pageId: pageId,
-				email: user.profileObj.email,
 				title: title,
 				content: editorContent.join('\n'),
 				accessType: publicAccess ? "public" : "private",
@@ -146,10 +154,12 @@ export default function Docs() {
 			const data = await res.json()
 			if (data && data.error) {
 				console.log(data.error)
-				window.location.href = '/'
+				setSnackBarMessage({ message: data.error, type: 'error' })
+				setSnackBarState(true)
 			} else if (data && data.content) {
 				setEditorContent(data.content.split('\n'))
 				setTitle(data.title)
+				setSnackBarMessage({ message: 'Success!', type: 'success' })
 				setSnackBarState(true)
 			} else {
 				console.log("No data")
@@ -205,8 +215,8 @@ export default function Docs() {
 						onChange={onEditorStateChange}
 					/>
 					<Snackbar open={snackBarState} autoHideDuration={5000} onClose={handleSnackBarClose}>
-						<Alert severity="success" sx={{ width: '100%' }}>
-							Saved successfully
+						<Alert severity={snackBarMessage.type} sx={{ width: '100%' }}>
+							{snackBarMessage.message}
 						</Alert>
 					</Snackbar>
 				</div>

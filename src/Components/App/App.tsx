@@ -22,7 +22,7 @@ type DeleteVisible = {
 
 function App() {
 	const userStorage = localStorage.getItem('user')
-	if (!userStorage){
+	if (!userStorage) {
 		window.location.href = '/login'
 		return
 	}
@@ -36,19 +36,21 @@ function App() {
 	const [docs, setDocs] = useState<Docs[]>([])
 
 	useEffect(() => {
-		fetch(SERVER + '/myDocs', {
-			method: 'POST',
+		fetch(`${SERVER}/docs/me`, {
+			method: 'GET',
 			mode: 'cors',
 			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ email: user.profileObj.email })
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${user.tokenObj.id_token}`
+			}
 		}).then(async (res) => {
 			if (res.status === 200) {
 				const data = await res.json()
 				if (!!data) {
 					setDocs(data)
 				}
+			} else if (res.status === 401) {
+				window.location.href = '/logout'
 			}
 		}).catch(err => {
 			console.log(err)
@@ -65,11 +67,12 @@ function App() {
 
 	const handleDocDelete = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: any) => {
 		e.stopPropagation()
-		fetch(SERVER + '/deleteDoc', {
-			method: 'POST',
+		fetch(`${SERVER}/doc`, {
+			method: 'DELETE',
 			mode: 'cors',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${user.tokenObj.id_token}`
 			},
 			body: JSON.stringify({ id: id })
 		}).then(async (res) => {
@@ -89,11 +92,32 @@ function App() {
 		window.location.href = `/docs/${id}`
 	}
 
+	const handleCreateDoc = async () => {
+		const response = await fetch(`${SERVER}/doc`, {
+			method: 'POST',
+			mode: 'cors',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${user.tokenObj.id_token}`
+			},
+			body: JSON.stringify({ title: 'Untitled' })
+		})
+
+		if (response.status === 200) {
+			const data = await response.json()
+			if (!!data) {
+				window.location.href = `/docs/${data.id}`
+			}
+		} else if (response.status === 401) {
+			window.location.href = '/logout'
+		}
+	}
+
 	return (
 		<div style={{ backgroundColor: '#F5F5F5' }}>
 			<Navbar user={user} page={undefined} handleSave={undefined} handleEmailChange={undefined} emailList={undefined} handleTitleChange={undefined} title={undefined} publicAccess={undefined} setPublicAccess={undefined} />
 			<Box sx={{ width: '80%', margin: 'auto', minHeight: '100vh' }}>
-				<Paper sx={{ width: '150px', height: '200px', margin: '20px', cursor: 'pointer', float: 'left' }} onClick={() => window.location.href = '/docs'}>
+				<Paper sx={{ width: '150px', height: '200px', margin: '20px', cursor: 'pointer', float: 'left' }} onClick={handleCreateDoc}>
 					<img style={{
 						width: '100%', position: 'relative',
 						top: '50%',
