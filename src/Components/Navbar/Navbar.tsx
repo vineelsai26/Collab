@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
@@ -12,7 +12,7 @@ import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
 import Modal from '@mui/material/Modal'
 import { FormControlLabel, OutlinedInput, Switch } from '@mui/material'
-import { GoogleLoginResponse } from 'react-google-login'
+import { CredentialResponse } from '@react-oauth/google'
 
 const settings = ['Profile', 'Logout']
 
@@ -28,8 +28,10 @@ const style = {
     p: 4,
 }
 
+const SERVER = import.meta.env.VITE_BACKEND_URL
+
 type NavbarProps = {
-    user: GoogleLoginResponse
+    user: CredentialResponse
     page?: string
     handleSave?: () => void
     handleEmailChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
@@ -42,6 +44,35 @@ type NavbarProps = {
 
 const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTitleChange, title, publicAccess, setPublicAccess }: NavbarProps) => {
     const [anchorElUser, setAnchorElUser] = React.useState(null)
+
+    const [profile, setProfile] = React.useState({
+        name: '',
+        email: '',
+        picture: '',
+    })
+
+    useEffect(() => {
+        async function getUserProfile() {
+            if (user && user.credential) {
+                const profile = await fetch(`${SERVER}/me`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${user.credential}`,
+                    }
+                })
+
+                const data = await profile.json()
+
+                if (data) {
+                    setProfile(data)
+                }
+            }
+        }
+
+        getUserProfile()
+    }, [user])
 
     const [open, setOpen] = React.useState(false)
     const handleOpen = () => setOpen(true)
@@ -62,7 +93,7 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTi
     }
 
     const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (setPublicAccess){
+        if (setPublicAccess) {
             setPublicAccess(event.target.checked)
         }
     }
@@ -128,7 +159,7 @@ const Navbar = ({ user, page, handleSave, handleEmailChange, emailList, handleTi
 
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="User" src={user.profileObj.imageUrl} />
+                                <Avatar alt="User" src={profile.picture} />
                             </IconButton>
                         </Tooltip>
                         <Box sx={{ flexGrow: 0 }}>

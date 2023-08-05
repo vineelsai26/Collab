@@ -6,6 +6,7 @@ import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
 import { Editor } from '@monaco-editor/react'
 import CryptoJS from 'crypto-js'
+import { CredentialResponse } from '@react-oauth/google'
 
 const Alert = React.forwardRef(function Alert(
 	props: any,
@@ -26,12 +27,12 @@ export default function Docs() {
 	const [emailList, setEmailList] = useState<string[]>([])
 	const { pageId } = useParams()
 
-	const userStorage = localStorage.getItem('user')
+	const userStorage = localStorage.getItem('auth')
 	if (!userStorage) {
 		window.location.href = '/login'
 		return
 	}
-	const user = JSON.parse(userStorage)
+	const user: CredentialResponse = JSON.parse(userStorage)
 	if (!!!user) {
 		window.location.href = '/login'
 	}
@@ -52,7 +53,7 @@ export default function Docs() {
 			mode: 'cors',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${user.tokenObj.id_token}`
+				'Authorization': `Bearer ${user.credential}`
 			}
 		}).then(async (res) => {
 			if (res.status === 200) {
@@ -141,7 +142,7 @@ export default function Docs() {
 			mode: 'cors',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${user.tokenObj.id_token}`
+				'Authorization': `Bearer ${user.credential}`
 			},
 			body: JSON.stringify({
 				pageId: pageId,

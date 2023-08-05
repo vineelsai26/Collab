@@ -1,5 +1,5 @@
 export default function Logout() {
-	localStorage.removeItem('user')
+	localStorage.removeItem('auth')
 	window.location.href = '/'
 	return (
 		<div>

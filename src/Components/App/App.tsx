@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import React from 'react'
+import { CredentialResponse } from '@react-oauth/google'
 
 const SERVER = import.meta.env.VITE_BACKEND_URL
 
@@ -21,12 +22,12 @@ type DeleteVisible = {
 }
 
 function App() {
-	const userStorage = localStorage.getItem('user')
+	const userStorage = localStorage.getItem('auth')
 	if (!userStorage) {
 		window.location.href = '/login'
 		return
 	}
-	const user = JSON.parse(userStorage)
+	const user: CredentialResponse = JSON.parse(userStorage)
 	if (!!!user) {
 		window.location.href = '/login'
 	}
@@ -41,7 +42,7 @@ function App() {
 			mode: 'cors',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${user.tokenObj.id_token}`
+				'Authorization': `Bearer ${user.credential}`
 			}
 		}).then(async (res) => {
 			if (res.status === 200) {
@@ -72,7 +73,7 @@ function App() {
 			mode: 'cors',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${user.tokenObj.id_token}`
+				'Authorization': `Bearer ${user.credential}`
 			},
 			body: JSON.stringify({ id: id })
 		}).then(async (res) => {
@@ -98,7 +99,7 @@ function App() {
 			mode: 'cors',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${user.tokenObj.id_token}`
+				'Authorization': `Bearer ${user.credential}`
 			},
 			body: JSON.stringify({ title: 'Untitled' })
 		})
