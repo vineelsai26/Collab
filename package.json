@@ -29,6 +29,6 @@
     "@types/react-draft-wysiwyg": "^1.13.4",
     "@vitejs/plugin-react": "^4.0.4",
     "typescript": "^5.2.2",
-    "vite": "^4.4.9"
+    "vite": "^4.4.11"
   }
 }
