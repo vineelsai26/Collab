@@ -116,7 +116,7 @@ function App() {
 
 	return (
 		<div style={{ backgroundColor: '#F5F5F5' }}>
-			<Navbar user={user} page={undefined} handleSave={undefined} handleEmailChange={undefined} emailList={undefined} handleTitleChange={undefined} title={undefined} publicAccess={undefined} setPublicAccess={undefined} />
+			<Navbar user={user} page={undefined} handleEmailChange={undefined} emailList={undefined} handleTitleChange={undefined} title={undefined} publicAccess={undefined} setPublicAccess={undefined} />
 			<Box sx={{ width: '80%', margin: 'auto', minHeight: '100vh' }}>
 				<Paper sx={{ width: '150px', height: '200px', margin: '20px', cursor: 'pointer', float: 'left' }} onClick={handleCreateDoc}>
 					<img style={{
