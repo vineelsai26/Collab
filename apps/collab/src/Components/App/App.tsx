@@ -1,11 +1,10 @@
-import { IconButton, Paper } from "@mui/material"
-import { Box } from "@mui/material"
 import Navbar from "../Navbar/Navbar"
 import { useState, useEffect } from 'react'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import React from 'react'
 import { CredentialResponse } from '@react-oauth/google'
+import { Button, Card, IconButton } from '@vstack/ui'
 
 const SERVER = import.meta.env.VITE_BACKEND_URL
 
@@ -115,35 +114,84 @@ function App() {
 	}
 
 	return (
-		<div style={{ backgroundColor: '#F5F5F5' }}>
+		<div className='vstack-app-shell vstack-grid-shell'>
 			<Navbar user={user} page={undefined} handleEmailChange={undefined} emailList={undefined} handleTitleChange={undefined} title={undefined} publicAccess={undefined} setPublicAccess={undefined} />
-			<Box sx={{ width: '80%', margin: 'auto', minHeight: '100vh' }}>
-				<Paper sx={{ width: '150px', height: '200px', margin: '20px', cursor: 'pointer', float: 'left' }} onClick={handleCreateDoc}>
-					<img style={{
-						width: '100%', position: 'relative',
-						top: '50%',
-						transform: 'translateY(-50%)',
-					}} src={'/new.webp'} />
-				</Paper>
+			<main className='vstack-container vstack-section'>
+				<section className='vstack-section-heading'>
+					<span className='vstack-tag vstack-eyebrow'>Workspace</span>
+					<h1 className='vstack-title'>Collab Docs</h1>
+					<div className='vstack-divider' />
+					<p className='vstack-copy'>
+						Create, edit, and share documents from the same shared VStack surface used across the frontend apps.
+					</p>
+				</section>
+				<div style={{
+					display: 'grid',
+					gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+					gap: '24px',
+					minHeight: '52vh',
+				}}>
+				<Card
+					className='vstack-stack'
+					onClick={handleCreateDoc}
+					style={{
+						alignItems: 'center',
+						cursor: 'pointer',
+						minHeight: '240px',
+						padding: '20px',
+						placeContent: 'center',
+					}}>
+					<img
+						alt=''
+						src='/new.webp'
+						style={{ maxWidth: '120px', width: '70%' }}
+					/>
+					<Button className='vstack-button'>New Doc</Button>
+				</Card>
 				{docs.map((doc) => {
 					return (
-						<Paper key={doc.id} sx={{ width: '150px', height: '200px', margin: '20px', cursor: 'pointer', textAlign: 'inherit', float: 'left', position: 'relative' }} onClick={() => window.location.href = `/docs/${doc.id}`}>
-							<img style={{ position: 'absolute', width: '100%' }} src="/icon.png" ></img>
-							<Box onMouseOver={() => handleMouseOver(doc.id)} onMouseLeave={() => handleMouseLeave(doc.id)}>
-								<p style={{ textAlign: 'center', bottom: 0, position: 'absolute', width: '100%' }}>
+						<Card
+							key={doc.id}
+							onClick={() => window.location.href = `/docs/${doc.id}`}
+							style={{
+								cursor: 'pointer',
+								minHeight: '240px',
+								overflow: 'hidden',
+								padding: '16px',
+								position: 'relative',
+							}}>
+							<img
+								alt=''
+								src='/icon.png'
+								style={{ display: 'block', margin: '12px auto 0', width: '80%' }}
+							/>
+							<div onMouseOver={() => handleMouseOver(doc.id)} onMouseLeave={() => handleMouseLeave(doc.id)}>
+								<p style={{
+									background: 'var(--vstack-surface)',
+									borderTop: '2px solid var(--vstack-border)',
+									bottom: 0,
+									fontWeight: 800,
+									left: 0,
+									margin: 0,
+									padding: '12px 44px',
+									position: 'absolute',
+									right: 0,
+									textAlign: 'center',
+								}}>
 									{doc.title}
 								</p>
-								<IconButton style={{ zIndex: 1000, position: 'absolute', bottom: 0, left: 0, visibility: deleteVisible[doc.id] ? 'visible' : 'hidden' }} onClick={(e) => handleDocEdit(e, doc.id)}>
+								<IconButton label={`Edit ${doc.title}`} style={{ zIndex: 1000, position: 'absolute', bottom: 6, left: 6, visibility: deleteVisible[doc.id] ? 'visible' : 'hidden' }} onClick={(e) => handleDocEdit(e, doc.id)}>
 									<EditIcon />
 								</IconButton>
-								<IconButton style={{ zIndex: 1000, position: 'absolute', bottom: 0, right: 0, visibility: deleteVisible[doc.id] ? 'visible' : 'hidden' }} onClick={(e) => handleDocDelete(e, doc.id)}>
+								<IconButton label={`Delete ${doc.title}`} style={{ zIndex: 1000, position: 'absolute', bottom: 6, right: 6, visibility: deleteVisible[doc.id] ? 'visible' : 'hidden' }} onClick={(e) => handleDocDelete(e, doc.id)}>
 									<DeleteIcon />
 								</IconButton>
-							</Box>
-						</Paper>
+							</div>
+						</Card>
 					)
 				})}
-			</Box>
+				</div>
+			</main>
 		</div>
 	)
 }

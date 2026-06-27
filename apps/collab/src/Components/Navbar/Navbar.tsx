@@ -228,7 +228,7 @@ const Navbar = ({
 									<MenuItem
 										key={setting}
 										onClick={handleCloseUserMenu}>
-										<Typography textAlign='center'>
+										<Typography sx={{ textAlign: 'center' }}>
 											{setting}
 										</Typography>
 									</MenuItem>
