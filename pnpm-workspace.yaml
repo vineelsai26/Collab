@@ -16,6 +16,12 @@ packageExtensions:
     peerDependencies:
       tailwindcss: '>=3.0.0 || >=4.0.0'
 
+overrides:
+  esbuild@<=0.24.2: 0.25.0
+  immutable@<3.8.3: 3.8.3
+  postcss: 8.5.18
+  uuid@<11.1.1: 11.1.1
+
 peerDependencyRules:
   allowedVersions:
     tailwindcss: 4.3.1

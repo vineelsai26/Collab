@@ -14,6 +14,33 @@
         "TURSO_*"
       ]
     },
+    "@vstack/vscloud#build": {
+      "outputs": []
+    },
+    "@vstack/ai#build": {
+      "outputs": []
+    },
+    "@vstack/auth#build": {
+      "outputs": []
+    },
+    "@vstack/content#build": {
+      "outputs": []
+    },
+    "@vstack/data#build": {
+      "outputs": []
+    },
+    "@vstack/observability#build": {
+      "outputs": []
+    },
+    "@vstack/ui#build": {
+      "outputs": []
+    },
+    "@vstack/template-scheduled-task#build": {
+      "outputs": []
+    },
+    "orderflow#build": {
+      "outputs": []
+    },
     "dev": {
       "cache": false,
       "persistent": true
@@ -22,8 +49,7 @@
       "dependsOn": ["^lint"]
     },
     "test": {
-      "dependsOn": ["^test"],
-      "outputs": ["coverage/**"]
+      "dependsOn": ["^test"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
