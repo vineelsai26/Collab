@@ -1,10 +1,10 @@
 import Navbar from "../Navbar/Navbar"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import React from 'react'
-import { CredentialResponse } from '@react-oauth/google'
 import { Button, Card, IconButton } from '@vstack/ui'
+import { getStoredUser } from '../../lib/auth'
 
 const SERVER = import.meta.env.VITE_BACKEND_URL
 
@@ -21,21 +21,19 @@ type DeleteVisible = {
 }
 
 function App() {
-	const userStorage = localStorage.getItem('auth')
-	if (!userStorage) {
-		window.location.href = '/login'
-		return
-	}
-	const user: CredentialResponse = JSON.parse(userStorage)
-	if (!!!user) {
-		window.location.href = '/login'
-	}
+	// Compute the current user once, with defensive parsing/expiry handling.
+	// Hooks below run unconditionally to satisfy the Rules of Hooks.
+	const user = useMemo(() => getStoredUser(), [])
 
 	const [deleteVisible, setDeleteVisible] = useState<DeleteVisible>({})
 
 	const [docs, setDocs] = useState<Docs[]>([])
 
 	useEffect(() => {
+		if (!user) {
+			window.location.href = '/login'
+			return
+		}
 		fetch(`${SERVER}/docs/me`, {
 			method: 'GET',
 			mode: 'cors',
@@ -55,7 +53,11 @@ function App() {
 		}).catch(err => {
 			console.log(err)
 		})
-	}, [])
+	}, [user])
+
+	if (!user) {
+		return <div>Loading...</div>
+	}
 
 	const handleMouseOver = (id: any) => {
 		setDeleteVisible({ ...deleteVisible, [id]: true })
@@ -114,7 +116,7 @@ function App() {
 	}
 
 	return (
-		<div className='vstack-app-shell vstack-grid-shell'>
+		<div className='vstack-app-shell'>
 			<Navbar user={user} page={undefined} handleEmailChange={undefined} emailList={undefined} handleTitleChange={undefined} title={undefined} publicAccess={undefined} setPublicAccess={undefined} />
 			<main className='vstack-container vstack-section'>
 				<section className='vstack-section-heading'>

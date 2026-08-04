@@ -10,6 +10,7 @@ allowBuilds:
   puppeteer: true
   sharp: true
   unrs-resolver: true
+  workerd: true
 
 packageExtensions:
   '@tailwindcss/typography@*':
@@ -21,6 +22,8 @@ overrides:
   immutable@<3.8.3: 3.8.3
   postcss: 8.5.18
   uuid@<11.1.1: 11.1.1
+  # next bundles sharp as an optional dep below the patched line (GHSA <0.35.0).
+  sharp@<0.35.0: 0.35.3
 
 peerDependencyRules:
   allowedVersions:

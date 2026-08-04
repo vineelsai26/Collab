@@ -27,7 +27,12 @@ export default function Login() {
 	}
 
 	const responseGoogle = (response: CredentialResponse) => {
-		localStorage.setItem('auth', JSON.stringify(response))
+		// Persist only the credential (the bearer token) — not the full OAuth
+		// response — to minimize the sensitive surface stored in localStorage.
+		localStorage.setItem(
+			'auth',
+			JSON.stringify({ credential: response.credential }),
+		)
 		window.location.href = '/'
 	}
 

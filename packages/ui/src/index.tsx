@@ -456,17 +456,29 @@ export function CopyButton({
   const [copied, setCopied] = useState(false);
 
   async function copy() {
-    await navigator.clipboard.writeText(String(content).replace(/\n$/, ""));
+    try {
+      await navigator.clipboard.writeText(String(content).replace(/\n$/, ""));
+    } catch {
+      // Clipboard writes reject in insecure contexts, when the document is not
+      // focused, or when permission is denied. Keep copied-state transitions on
+      // the success path only so the button never falsely shows "Copied", and
+      // swallow the rejection so it does not surface as an unhandledrejection.
+      return;
+    }
     setCopied(true);
     onCopied?.();
     window.setTimeout(() => setCopied(false), resetDelayMs);
+  }
+
+  function handleClick() {
+    void copy();
   }
 
   return (
     <button
       aria-label={copied ? copiedLabel : copyLabel}
       className={cx("inline-flex items-center justify-center", className)}
-      onClick={copy}
+      onClick={handleClick}
       type={type}
       {...props}
     >
